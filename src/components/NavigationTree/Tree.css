@@ -1,0 +1,52 @@
+.rst__node {
+  display: flex;
+
+  .rst__lineBlock {
+    flex: 0 0 auto;
+  }
+
+  .rst__nodeContent {
+    flex: 0 1 auto;
+    left: auto !important;
+    position: relative !important;
+    top: auto !important;
+    width: 100%;
+  }
+}
+.some-class > div:first-child {
+  height: auto !important;
+  width: auto !important;
+}
+.tree-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align items to left */
+  /* Or align-items: center; to center them horizontally */
+}
+
+.sortable-tree {
+  width: 100%; /* Ensure it takes the full width available */
+}
+/* .rst__highlightTopLeftCorner,
+.rst__highlightBottomLeftCorner {
+  display: none;
+} */
+
+/* .rst__lineBlock:not(.rst__lineHalfVerticalTop):not(.rst__lineFullVertical) {
+  display: none;
+} */
+
+/* .rst__lineBlock.rst__lineHalfVerticalTop.rst__lineHalfHorizontalRight,
+.rst__lineBlock.rst__lineHalfHorizontalRight.rst__lineFullVertical {
+  display: none;
+} */
+
+/* .rst__lineBlock {
+  & + .rst__lineBlock.rst__lineHalfVerticalTop.rst__lineHalfHorizontalRight,
+  & + .rst__lineBlock.rst__lineHalfHorizontalRight.rst__lineFullVertical {
+    display: block;
+  }
+  &.rst__lineFullVertical {
+    display: none;
+  }
+} */
