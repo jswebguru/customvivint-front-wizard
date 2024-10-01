@@ -80,7 +80,10 @@ const Tree = ({ treeData, setTreeData, searchString, setSearchString }) => {
     setSearchString(e.target.value);
   };
   return (
-    <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+    <DndProvider
+      backend={TouchBackend}
+      options={{ enableMouseEvents: true, delayTouchStart: 200 }}
+    >
       <div className="tree-container" ref={containerRef}>
         <SortableTree
           className="sortable-tree"
