@@ -20,7 +20,7 @@
 .tree-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   overflow: hidden;
   /* Align items to left */
   /* Or align-items: center; to center them horizontally */

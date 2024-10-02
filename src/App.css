@@ -12,7 +12,7 @@ body {
   background-color: var(
     --color-background-primary
   ); /* Set the background color to black */
-  color: white; /* Set default text color to white for contrast */
+  color: black; /* Set default text color to white for contrast */
 }
 
 .App {
@@ -25,7 +25,7 @@ body {
 
 .app-content {
   width: 100%;
-  max-height: calc(100% - 70px);
+  max-height: calc(100vh - 41px);
   flex: 1;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;

@@ -85,6 +85,35 @@ const Tree = ({ treeData, setTreeData, searchString, setSearchString }) => {
       options={{ enableMouseEvents: true, delayTouchStart: 200 }}
     >
       <div className="tree-container" ref={containerRef}>
+        <div className="flex items-center mt-2 space-x-4 justify-center">
+          {searchFoundCount > 0 && (
+            <>
+              <button
+                className="p-2 border rounded-lg bg-gray-200 hover:bg-gray-300"
+                onClick={() =>
+                  setSearchFocusIndex(
+                    searchFocusIndex !== 0
+                      ? searchFocusIndex - 1
+                      : searchFoundCount - 1
+                  )
+                }
+              >
+                Prev
+              </button>
+              <span>
+                {searchFocusIndex + 1} / {searchFoundCount}
+              </span>
+              <button
+                className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() =>
+                  setSearchFocusIndex((searchFocusIndex + 1) % searchFoundCount)
+                }
+              >
+                Next
+              </button>
+            </>
+          )}
+        </div>
         <SortableTree
           className="sortable-tree"
           treeData={treeData}
@@ -107,35 +136,6 @@ const Tree = ({ treeData, setTreeData, searchString, setSearchString }) => {
             );
           }}
         />
-        <div className="flex items-center mt-2 space-x-4">
-          {searchFoundCount > 0 && (
-            <>
-              <button
-                className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() =>
-                  setSearchFocusIndex(
-                    searchFocusIndex !== 0
-                      ? searchFocusIndex - 1
-                      : searchFoundCount - 1
-                  )
-                }
-              >
-                Prev
-              </button>
-              <button
-                className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() =>
-                  setSearchFocusIndex((searchFocusIndex + 1) % searchFoundCount)
-                }
-              >
-                Next
-              </button>
-              <span>
-                {searchFocusIndex + 1} / {searchFoundCount}
-              </span>
-            </>
-          )}
-        </div>
       </div>
     </DndProvider>
   );

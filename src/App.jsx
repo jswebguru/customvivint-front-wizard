@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import "./App.css";
 import NavigationPage from "./pages/Navigation";
 import AddReportPage from "./pages/AddReport";
 import BottomNavigation from "./components/BottomNavigation";

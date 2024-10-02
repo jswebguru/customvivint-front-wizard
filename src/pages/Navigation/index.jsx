@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Tree from "../../components/NavigationTree/Tree";
 import apiClient from "../../lib/api-client";
 import { toast } from "react-toastify";
+import AnimatedPulse from "../../components/Pulse";
 const NavigationPage = () => {
   const [navigationData, setNavigationData] = useState(null);
   const [categoryName, setCategoryName] = useState("");
@@ -130,20 +131,7 @@ const NavigationPage = () => {
             setSearchString={setSearchString}
           />
         ) : (
-          <>
-            <div className="animate-pulse flex space-x-4">
-              <div className="flex-1 space-y-6 py-1">
-                <div className="h-2 bg-gray-300 rounded"></div>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="h-2 bg-gray-300 rounded col-span-2"></div>
-                    <div className="h-2 bg-gray-300 rounded col-span-1"></div>
-                  </div>
-                  <div className="h-2 bg-gray-300 rounded"></div>
-                </div>
-              </div>
-            </div>
-          </>
+          <AnimatedPulse />
         )}
       </div>
     </div>
