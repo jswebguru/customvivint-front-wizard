@@ -1,144 +1,206 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import { DndProvider } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { FaEdit, FaTrash, FaFolder, FaInfoCircle } from "react-icons/fa";
 import SortableTree from "@nosferatu500/react-sortable-tree";
 import { toast } from "react-toastify";
 import { debounce } from "lodash";
+import TreeNode from "./TreeNode";
+import apiClient from "../../lib/api-client";
 import "@nosferatu500/react-sortable-tree/style.css";
 import "./Tree.css";
-const Tree = ({ treeData, setTreeData, searchString, setSearchString }) => {
-  const [searchFocusIndex, setSearchFocusIndex] = useState(0);
-  const [searchFoundCount, setSearchFoundCount] = useState(0);
-  const containerRef = useRef(null);
 
-  useEffect(() => {
-    // Update container height based on content
-    const handleResize = () => {
-      if (containerRef.current) {
-        containerRef.current.style.height = `${window.innerHeight}px`;
-      }
-    };
+const Tree = React.memo(
+  ({ treeData, setTreeData, searchString, setSearchString, fetchTreeData }) => {
+    const [searchFocusIndex, setSearchFocusIndex] = useState(0);
+    const [searchFoundCount, setSearchFoundCount] = useState(0);
+    const containerRef = useRef(null);
+    const previousTreeData = useRef(treeData);
 
-    // Initial set
-    handleResize();
+    useEffect(() => {
+      const handleResize = () => {
+        if (containerRef.current) {
+          containerRef.current.style.height = `${window.innerHeight}px`;
+        }
+      };
 
-    // Adjust on resize
-    window.addEventListener("resize", handleResize);
+      handleResize();
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-  const handleTreeOnChange = (treeData) => {
-    setTreeData(treeData);
-  };
+      window.addEventListener("resize", handleResize);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }, []);
 
-  const generateNodeProps = ({ node }) => ({
-    style: {
-      backgroundColor: "lightblue",
-      width: "100%",
-    },
-    title: (
-      <div className="flex items-center space-x-2">
-        {node.type === "folder" ? (
-          <FaFolder className="text-yellow-500" size={20} />
-        ) : (
-          <FaInfoCircle className="text-blue-500" size={20} />
-        )}
-        <span className="font-medium">{node.title}</span>
-      </div>
-    ),
-    buttons: [
-      <div className="flex space-x-2">
-        <button className="text-blue-400 " onClick={() => handleEdit(node)}>
-          <FaEdit size={20} />
-        </button>
-        <button className="text-red-400" onClick={() => handleDelete(node)}>
-          <FaTrash size={20} />
-        </button>
-      </div>,
-    ],
-  });
+    const handleNodeChange = useCallback(
+      async ({ node, parentNode }) => {
+        try {
+          const endpoint_url =
+            node.type === "folder"
+              ? "/sidebar/move_folder"
+              : "/sidebar/move_report";
+          await apiClient.post(endpoint_url, {
+            item_id: node.id.toString(),
+            destination_parent_id: parentNode ? parentNode.id : null,
+          });
+          toast.success("Updated successfully!");
+        } catch (error) {
+          toast.warning("Can't update!");
+          console.error("Error updating!", error);
+          setTreeData(previousTreeData.current);
+        }
+      },
+      [setTreeData]
+    );
 
-  const debouncedWarning = useCallback(
-    debounce(() => {
-      toast.warning("The node cannot be a child of a report node!");
-    }, 1000), // Set the debounce time as 1 second
-    []
-  );
+    const deleteNode = useCallback(
+      async (node) => {
+        try {
+          const endpoint_url =
+            node.type === "folder"
+              ? "/sidebar/delete_folder/"
+              : "/sidebar/delete_report/";
+          await apiClient.delete(endpoint_url + node.id.toString());
+          fetchTreeData();
+          toast.success("Deleted successfully!");
+        } catch (error) {
+          toast.warning("Can't delete!");
+          console.error("Error deleting!", error);
+        }
+      },
+      [fetchTreeData]
+    );
 
-  const canDrop = ({ nextParent }) => {
-    // Ensure that a report node cannot be a child of another report node
-    if (nextParent && nextParent.type === "report") {
-      debouncedWarning();
-      return false;
-    }
-    return true;
-  };
-  const handleSearchChange = (e) => {
-    setSearchString(e.target.value);
-  };
-  return (
-    <DndProvider
-      backend={TouchBackend}
-      options={{ enableMouseEvents: true, delayTouchStart: 200 }}
-    >
-      <div className="tree-container" ref={containerRef}>
-        <div className="flex items-center mt-2 space-x-4 justify-center">
-          {searchFoundCount > 0 && (
-            <>
-              <button
-                className="p-2 border rounded-lg bg-gray-200 hover:bg-gray-300"
-                onClick={() =>
-                  setSearchFocusIndex(
-                    searchFocusIndex !== 0
-                      ? searchFocusIndex - 1
-                      : searchFoundCount - 1
-                  )
-                }
-              >
-                Prev
-              </button>
-              <span>
-                {searchFocusIndex + 1} / {searchFoundCount}
-              </span>
-              <button
-                className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() =>
-                  setSearchFocusIndex((searchFocusIndex + 1) % searchFoundCount)
-                }
-              >
-                Next
-              </button>
-            </>
-          )}
+    const generateNodeProps = useCallback(
+      ({ node }) => ({
+        style: {
+          backgroundColor: "lightblue",
+          width: "100%",
+        },
+        title: (
+          <div className="flex items-center space-x-2">
+            {node.type === "folder" ? (
+              <FaFolder className="text-yellow-500" size={20} />
+            ) : (
+              <FaInfoCircle className="text-blue-500" size={20} />
+            )}
+            <span className="font-medium">{node.title}</span>
+          </div>
+        ),
+        buttons: [
+          <div className="flex space-x-2">
+            <button className="text-blue-400" onClick={() => deleteNode(node)}>
+              <FaEdit size={20} />
+            </button>
+            <button className="text-red-400" onClick={() => deleteNode(node)}>
+              <FaTrash size={20} />
+            </button>
+          </div>,
+        ],
+      }),
+      [deleteNode]
+    );
+
+    const debouncedWarning = useMemo(
+      () =>
+        debounce(() => {
+          toast.warning("The node cannot be a child of a report node!");
+        }, 1000),
+      []
+    );
+
+    const onMoveNode = useCallback(
+      ({ treeData: newTreeData, node, nextParentNode }) => {
+        previousTreeData.current = treeData;
+        setTreeData(newTreeData);
+        handleNodeChange({ node, parentNode: nextParentNode });
+      },
+      [treeData, setTreeData, handleNodeChange]
+    );
+
+    const canDrop = useCallback(
+      ({ nextParent }) => {
+        if (nextParent && nextParent.type === "report") {
+          debouncedWarning();
+          return false;
+        }
+        return true;
+      },
+      [debouncedWarning]
+    );
+
+    return (
+      <DndProvider
+        backend={TouchBackend}
+        options={{ enableMouseEvents: true, delayTouchStart: 200 }}
+      >
+        <div className="tree-container" ref={containerRef}>
+          <div className="flex items-center mt-2 space-x-4 justify-center">
+            {searchFoundCount > 0 && (
+              <>
+                <button
+                  className="p-2 border rounded-lg bg-gray-200 hover:bg-gray-300"
+                  onClick={() =>
+                    setSearchFocusIndex(
+                      searchFocusIndex !== 0
+                        ? searchFocusIndex - 1
+                        : searchFoundCount - 1
+                    )
+                  }
+                >
+                  Prev
+                </button>
+                <span>
+                  {searchFocusIndex + 1} / {searchFoundCount}
+                </span>
+                <button
+                  className="p-2 border rounded bg-gray-200 hover:bg-gray-300"
+                  onClick={() =>
+                    setSearchFocusIndex(
+                      (searchFocusIndex + 1) % searchFoundCount
+                    )
+                  }
+                >
+                  Next
+                </button>
+              </>
+            )}
+          </div>
+          <SortableTree
+            className="sortable-tree"
+            treeData={treeData}
+            onChange={setTreeData}
+            canDrag={({ node }) => !node.dragDisabled}
+            canDrop={canDrop}
+            onMoveNode={onMoveNode}
+            touchScreenHoldDelay={500}
+            rowHeight={60}
+            generateNodeProps={({ node }) => ({
+              ...TreeNode({ node, deleteNode }),
+            })}
+            searchQuery={searchString}
+            searchFocusOffset={searchFocusIndex}
+            searchMethod={({ node, searchQuery }) =>
+              searchQuery &&
+              node.title.toLowerCase().includes(searchQuery.toLowerCase())
+            }
+            searchFinishCallback={(matches) => {
+              setSearchFoundCount(matches.length);
+              setSearchFocusIndex(
+                matches.length > 0 ? searchFocusIndex % matches.length : 0
+              );
+            }}
+          />
         </div>
-        <SortableTree
-          className="sortable-tree"
-          treeData={treeData}
-          onChange={(treeData) => handleTreeOnChange(treeData)}
-          canDrag={({ node }) => !node.dragDisabled}
-          canDrop={canDrop}
-          touchScreenHoldDelay={500}
-          rowHeight={60}
-          generateNodeProps={generateNodeProps}
-          searchQuery={searchString}
-          searchFocusOffset={searchFocusIndex}
-          searchMethod={({ node, searchQuery }) =>
-            searchQuery &&
-            node.title.toLowerCase().includes(searchQuery.toLowerCase())
-          }
-          searchFinishCallback={(matches) => {
-            setSearchFoundCount(matches.length);
-            setSearchFocusIndex(
-              matches.length > 0 ? searchFocusIndex % matches.length : 0
-            );
-          }}
-        />
-      </div>
-    </DndProvider>
-  );
-};
+      </DndProvider>
+    );
+  }
+);
 
 export default Tree;

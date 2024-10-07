@@ -25,7 +25,7 @@ body {
 
 .app-content {
   width: 100%;
-  max-height: calc(100vh - 41px);
+  max-height: calc(100% - 41px);
   flex: 1;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;

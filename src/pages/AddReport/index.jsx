@@ -15,10 +15,11 @@ const AddReportPage = () => {
       // Make API call to add the report
       const response = await apiClient.post("/sidebar/add_report", {
         title: reportName,
-        parent_id: "1DSWHiAW1iSFYVb86WQQUPn57iQ6W1DjGo",
+        parent_id: null,
         avatar_url: "abcd",
         description: "abcd",
-        link: "abcd",
+        report_type: reportType === "Tableau Report" ? "tableau" : "custom",
+        link: link,
       });
       toast.success("Report added successfully!");
       setReportName("");

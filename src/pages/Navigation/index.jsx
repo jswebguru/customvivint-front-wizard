@@ -129,6 +129,7 @@ const NavigationPage = () => {
             setTreeData={setNavigationData}
             searchString={searchString}
             setSearchString={setSearchString}
+            fetchTreeData={fetchSidebarData}
           />
         ) : (
           <AnimatedPulse />
