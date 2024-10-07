@@ -9,7 +9,6 @@ export default defineConfig({
     port: 3002,
     strictPort: true,
   },
-  resolve: { extensions: [] },
   server: {
     port: 3002,
     strictPort: true,
