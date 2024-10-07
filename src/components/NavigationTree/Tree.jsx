@@ -12,6 +12,7 @@ import SortableTree from "@nosferatu500/react-sortable-tree";
 import { toast } from "react-toastify";
 import { debounce } from "lodash";
 import TreeNode from "./TreeNode";
+import ConfirmModal from "../ConfirmModal";
 import apiClient from "../../lib/api-client";
 import "@nosferatu500/react-sortable-tree/style.css";
 import "./Tree.css";
@@ -75,36 +76,6 @@ const Tree = React.memo(
         }
       },
       [fetchTreeData]
-    );
-
-    const generateNodeProps = useCallback(
-      ({ node }) => ({
-        style: {
-          backgroundColor: "lightblue",
-          width: "100%",
-        },
-        title: (
-          <div className="flex items-center space-x-2">
-            {node.type === "folder" ? (
-              <FaFolder className="text-yellow-500" size={20} />
-            ) : (
-              <FaInfoCircle className="text-blue-500" size={20} />
-            )}
-            <span className="font-medium">{node.title}</span>
-          </div>
-        ),
-        buttons: [
-          <div className="flex space-x-2">
-            <button className="text-blue-400" onClick={() => deleteNode(node)}>
-              <FaEdit size={20} />
-            </button>
-            <button className="text-red-400" onClick={() => deleteNode(node)}>
-              <FaTrash size={20} />
-            </button>
-          </div>,
-        ],
-      }),
-      [deleteNode]
     );
 
     const debouncedWarning = useMemo(
